@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Configurateur AKRO</title>
+</head>
+<body class="p-4">
+  <h1 class="text-2xl mb-4">Configurateur de Longe AKRO</h1>
+  <form id="quoteForm" class="space-y-4">
+    <input type="text" name="clientInfo.companyName" placeholder="Société" class="border p-2 w-full" required />
+    <input type="email" name="clientInfo.email" placeholder="Email" class="border p-2 w-full" required />
+    <select name="productFamily" class="border p-2 w-full" required>
+      <option value="Gaine_tissee">Gaine Tissée (k2)</option>
+      <option value="GAINE_NORMALE">Gaine Normale (k1)</option>
+    </select>
+    <select name="ropeColor" class="border p-2 w-full" required>
+      <option>NOIR</option><option>ROUGE</option><option>BLEU</option>
+      <option>VERT</option><option>ORANGE</option><option>GRIS</option>
+      <option>JAUNE</option><option>BLANC</option>
+    </select>
+    <select name="ropeType" class="border p-2 w-full" required>
+      <option>SIMPLE</option><option>DOUBLE</option>
+    </select>
+    <select name="configType" class="border p-2 w-full" required>
+      <option value="TA">Tête d’alouette</option>
+      <option value="Boucle">Petite Boucle</option>
+      <option value="PIER_O">Pier’O</option>
+    </select>
+    <input type="number" name="totalLength" min="9" max="15" class="border p-2 w-full" placeholder="Longueur totale (cm)" required />
+    <select name="mainConnector" class="border p-2 w-full" required>
+      <option value="TA">Tête d’alouette</option>
+      <option value="Boucle">Petite Boucle</option>
+      <option value="PIER_O">Pier’O</option>
+    </select>
+    <select name="ceMarking" class="border p-2 w-full" required>
+      <option>OUI</option><option>NON</option>
+    </select>
+    <input type="number" name="strand1Length" min="22" max="300" class="border p-2 w-full" placeholder="Brin 1 longueur" required />
+    <select name="strand1Termination" class="border p-2 w-full" required>
+      <option>Petite Boucle</option><option>TA</option><option>PIER_O</option>
+    </select>
+    <input type="number" name="strand2Length" min="22" max="300" class="border p-2 w-full" placeholder="Brin 2 longueur" />
+    <select name="strand2Termination" class="border p-2 w-full">
+      <option>Petite Boucle</option><option>TA</option><option>PIER_O</option>
+    </select>
+    <button class="bg-blue-500 text-white px-4 py-2" type="submit">Envoyer</button>
+  </form>
+  <p id="result" class="mt-4"></p>
+<script>
+document.getElementById('quoteForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const obj = {};
+  for (const [key, value] of formData.entries()) {
+    const path = key.split('.');
+    if (path.length === 2) {
+      obj[path[0]] = obj[path[0]] || {};
+      obj[path[0]][path[1]] = value;
+    } else {
+      obj[key] = value;
+    }
+  }
+  const res = await fetch('/api/quotes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(obj)
+  });
+  if (res.ok) {
+    const data = await res.json();
+    document.getElementById('result').innerHTML = `Devis créé avec prix: ${data.price.toFixed(2)} €`;
+  } else {
+    document.getElementById('result').innerText = 'Erreur lors de la création';
+  }
+});
+</script>
+</body>
+</html>
