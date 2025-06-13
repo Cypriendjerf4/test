@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Login</title>
+</head>
+<body class="p-4">
+  <form id="loginForm" class="space-y-4 max-w-sm mx-auto">
+    <input name="username" class="border p-2 w-full" placeholder="Utilisateur" required />
+    <input name="password" type="password" class="border p-2 w-full" placeholder="Mot de passe" required />
+    <button class="bg-blue-500 text-white px-4 py-2" type="submit">Se connecter</button>
+  </form>
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const form = e.target;
+  const res = await fetch('/api/auth/login', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ username: form.username.value, password: form.password.value })
+  });
+  if(res.ok){
+    const data = await res.json();
+    localStorage.setItem('token', data.token);
+    window.location.href = '/dashboard.html';
+  }else{
+    alert('Identifiants invalides');
+  }
+});
+</script>
+</body>
+</html>

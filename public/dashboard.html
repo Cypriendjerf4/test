@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Dashboard</title>
+</head>
+<body class="p-4">
+  <h1 class="text-2xl mb-4">Dashboard</h1>
+  <table class="min-w-full border" id="quotesTable">
+    <thead>
+      <tr>
+        <th class="border p-2">Date</th>
+        <th class="border p-2">Société</th>
+        <th class="border p-2">Référence</th>
+        <th class="border p-2">Prix (€)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <p class="mt-4">Chiffre d'affaires total : <span id="total"></span> €</p>
+<script>
+async function loadQuotes(){
+  const token = localStorage.getItem('token');
+  if(!token){ window.location.href = '/login.html'; return; }
+  const res = await fetch('/api/quotes', { headers:{ 'Authorization': 'Bearer '+token }});
+  if(res.ok){
+    const quotes = await res.json();
+    const tbody = document.querySelector('#quotesTable tbody');
+    let sum = 0;
+    quotes.forEach(q => {
+      sum += q.price;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class='border p-2'>${new Date(q.createdAt).toLocaleDateString()}</td>
+                      <td class='border p-2'>${q.clientInfo?.companyName||''}</td>
+                      <td class='border p-2'>${q.productReference||''}</td>
+                      <td class='border p-2'>${q.price.toFixed(2)}</td>`;
+      tbody.appendChild(tr);
+    });
+    document.getElementById('total').innerText = sum.toFixed(2);
+  }else{
+    alert('Accès refusé');
+    window.location.href = '/login.html';
+  }
+}
+loadQuotes();
+</script>
+</body>
+</html>
